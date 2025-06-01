@@ -14,7 +14,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        animation:'shift',
+        tabBarActiveTintColor: Colors.appColors.accent,
+        tabBarInactiveTintColor:'#ffffff',
+        tabBarItemStyle:{
+          display:'flex',
+          alignSelf:'center',
+        },
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -23,7 +29,10 @@ export default function TabLayout() {
             // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
-          default: {},
+          default: {
+            backgroundColor: Colors.appColors.primary,
+            height:60,
+          },
         }),
       }}>
       <Tabs.Screen
@@ -34,10 +43,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="carCare"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Mechanic',
+          tabBarStyle:{display:'none'},
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="car.badge.gearshape" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
         }}
       />
     </Tabs>

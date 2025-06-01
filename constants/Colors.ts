@@ -23,4 +23,13 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
   },
+  appColors:{
+    primary: '#1A6771', // A vibrant blue, similar to the design
+    secondary: '#FFFFFF', // White
+    textPrimary: '#FFFFFF', // White text on primary background
+    textSecondary: '#333333', // Dark text on white background
+    accent: '#FFD700', // Gold/Yellow for accents like engine light
+    gray: '#CCCCCC',
+    lightGray: '#F5F5F5',
+  }
 };
