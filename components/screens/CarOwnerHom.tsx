@@ -8,42 +8,46 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function CarOwnerHome({navigateTo}:{navigateTo:(screenName: string, params?: {}) => void}) {
     return (
         <SafeAreaView style={styles.container}>
-            <Header title="CarCare" />
-            <ThemedView style={styles.dashboardGrid}>
-                <IconButton
-                    iconName="camera"
-                    title="Scan Light"
-                    onPress={() => navigateTo('ScanLight')}
-                    color={Colors.appColors.primary}
-                    textColor={Colors.appColors.textSecondary}
-                    style={styles.dashboardButton}
-                />
-                <IconButton
-                    iconName="microphone"
-                    title="Record Sound"
-                    onPress={() => navigateTo('RecordSound')}
-                    color={Colors.appColors.primary}
-                    textColor={Colors.appColors.textSecondary}
-                    style={styles.dashboardButton}
-                />
-                <IconButton
-                    iconName="history"
-                    title="View History"
-                    onPress={() => navigateTo('History')}
-                    color={Colors.appColors.primary}
-                    textColor={Colors.appColors.textSecondary}
-                    style={styles.dashboardButton}
-                />
-                <IconButton
-                    iconName="wrench"
-                    title="Find Mechanic"
-                    onPress={() => navigateTo('FindMechanic')}
-                    color={Colors.appColors.primary}
-                    textColor={Colors.appColors.textSecondary}
-                    style={styles.dashboardButton}
-                />
-            </ThemedView>
-            </SafeAreaView>
+          <Header title="CarCare" />
+          <ThemedView style={styles.dashboardGrid}>
+              <IconButton
+                  iconName="camera"
+                  title="Scan Light"
+                  // onPress={() => navigateTo('ScanLight')}
+                  color={Colors.appColors.primary}
+                  textColor={Colors.appColors.textSecondary}
+                  style={styles.dashboardButton}
+                  navigateTo={()=>navigateTo('ScanLight')}
+              />
+              <IconButton
+                  iconName="microphone"
+                  title="Record Sound"
+                  // onPress={() => navigateTo('RecordSound')}
+                  color={Colors.appColors.primary}
+                  textColor={Colors.appColors.textSecondary}
+                  style={styles.dashboardButton}
+                  navigateTo={()=>navigateTo('RecordSound')}
+              />
+            
+              <IconButton
+                  iconName="history"
+                  title="View History"
+                  // onPress={() => navigateTo('History')}
+                  color={Colors.appColors.primary}
+                  textColor={Colors.appColors.textSecondary}
+                  style={styles.dashboardButton}
+                  navigateTo={()=>navigateTo('History')}
+              />
+              {/* <IconButton
+                  iconName="wrench"
+                  title="Find Mechanic"
+                  onPress={() => navigateTo('FindMechanic')}
+                  color={Colors.appColors.primary}
+                  textColor={Colors.appColors.textSecondary}
+                  style={styles.dashboardButton}
+              /> */}
+          </ThemedView>
+        </SafeAreaView>
     );
 }
 
@@ -63,5 +67,5 @@ const styles = StyleSheet.create({
   },
   dashboardButton: {
     marginBottom: 20,
-  },
+  }
 });

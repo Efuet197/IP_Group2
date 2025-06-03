@@ -10,7 +10,7 @@ const SplashScreen = ({navigateTo}:{navigateTo:(screenName: string, params?: {})
   const router=useRouter()
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      navigateTo('/SignUp')
+      // navigateTo('/SignUp')
     }, 4000); // Show splash for 2 seconds
     return () => clearTimeout(timer);
   }, []);

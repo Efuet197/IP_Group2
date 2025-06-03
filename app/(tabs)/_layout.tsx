@@ -14,12 +14,12 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        animation:'shift',
         tabBarActiveTintColor: Colors.appColors.accent,
         tabBarInactiveTintColor:'#ffffff',
         tabBarItemStyle:{
           display:'flex',
           alignSelf:'center',
+          // margin
         },
         headerShown: false,
         tabBarButton: HapticTab,
@@ -31,22 +31,33 @@ export default function TabLayout() {
           },
           default: {
             backgroundColor: Colors.appColors.primary,
-            height:60,
+            // height:60,
+            position: 'absolute',
+            borderTopWidth: 0,
+            height: Platform.OS === 'ios' ? 90 : 60, // Adjust height for iOS safe area
+            paddingBottom: Platform.OS === 'ios' ? 30 : 0,
+            marginBottom: Platform.OS === 'ios' ? 0 : 50,
+            paddingTop: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 5,
           },
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="carCare"
+        name="mechanic"
         options={{
           title: 'Mechanic',
-          tabBarStyle:{display:'none'},
+          // tabBarStyle:{display:'none'},
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="car.badge.gearshape" color={color} />,
         }}
       />

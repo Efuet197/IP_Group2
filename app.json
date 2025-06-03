@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CarCare",
-    "slug": "CarCare",
+    "slug": "carcare",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -9,14 +9,26 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs camera access to take photos/videos for your profile.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images/videos.",
+        "NSMicrophoneUsageDescription": "This app needs microphone access for recording audio/video.",
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1A6771"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.beri28.carcare",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -28,15 +40,36 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
-          "imageWidth": 200,
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 400,
           "resizeMode": "contain",
           "backgroundColor": "#008080"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow CarCare to access your photos to select them.",
+          "cameraPermission": "Allow CarCare to access your camera to take photos and videos.",
+          "microphonePermission": "Allow CarCare to access your microphone to record video audio."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow CarCare to access your microphone to record audio."
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7ea8ca7c-82cc-4276-88c3-2c108a3d852f"
+      }
+    },
+    "owner": "beri28"
   }
 }

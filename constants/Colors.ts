@@ -31,5 +31,10 @@ export const Colors = {
     accent: '#FFD700', // Gold/Yellow for accents like engine light
     gray: '#CCCCCC',
     lightGray: '#F5F5F5',
+    white: '#FFFFFF',
+    darkGray: '#555555',
+    red: '#FF4136', // For high severity
+    orange: '#FF851B', // For medium severity
+    green: '#2ECC40', // For low severity
   }
 };
