@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import { Image } from 'expo-image';
 import { GestureResponderEvent, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -16,7 +17,16 @@ const Header = ({ title, onBackPress }:headerProps) => (
         <Icon name="chevron-left" size={24} color={Colors.light.tabIconDefault} />
       </TouchableOpacity>
     )}
-    <ThemedText style={styles.headerTitle}>{title}</ThemedText>
+    <ThemedText style={styles.headerTitle}>
+      {!onBackPress ?
+      <Image
+          source={require('@/assets/images/logo.png')}
+          style={styles.appLogo}
+      />
+      :
+      title
+      }
+    </ThemedText>
   </ThemedView>
 );
 
@@ -26,6 +36,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.appColors.primary,
     paddingVertical: 15,
+    // paddingTop:55,
     paddingHorizontal: 20,
     elevation: 3, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
@@ -33,10 +44,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
+  appLogo: {
+    height: 40,
+    width: 55,
+  },
   backButton: {
     marginRight: 15,
   },
   headerTitle: {
+    display:'flex',
+    alignItems: 'center',
+    columnGap:'.5em',
     color: Colors.appColors.textPrimary,
     fontSize: 20,
     fontWeight: 'bold',

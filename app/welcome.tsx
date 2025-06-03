@@ -1,18 +1,20 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 
 const SplashScreen = ({navigateTo}:{navigateTo?:(screenName: string, params?: {}) => void}) => {
   // Simulate loading or initial animation
+  const { isSignedIn, isLoading } = useAuth();
   const router=useRouter()
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/signup')
-    }, 4000); // Show splash for 2 seconds
-    return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        // router.push('/signup')
+      }, 4000); // Show splash for 2 seconds
+      return () => clearTimeout(timer);
   }, []);
 
   return (
