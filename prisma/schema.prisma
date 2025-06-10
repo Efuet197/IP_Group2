@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  car_owner
+  mechanic
+}
+
+model User {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  full_name        String
+  email            String?           @unique
+  password         String
+  phone_number     Int?              @unique
+  location         String?
+  role             UserRole
+  vehicles         Vehicle[]         @relation("owns")
+  dashboardImages  DashboardImage[]  @relation("uploads")
+  engineSoundFiles EngineSoundFile[] @relation("records")
+  reviews          Review[]          @relation("writes")
+  mechanicProfile  MechanicProfile?  @relation("is")
+}
+
+model MechanicProfile {
+  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+  experience_years    Int
+  specialization      String
+  availability_status Boolean
+  workshop_location   String
+  user                User    @relation("is", fields: [id], references: [id])
+  userId              String  @unique // UUID as FK
+}
+
+model Vehicle {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  make        String
+  model       String
+  year        Int
+  user        User         @relation("owns", fields: [id], references: [id])
+  userId      String // FK to User
+  diagnostics Diagnostic[] @relation("is_diagnosed")
+}
+
+model DashboardImage {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  image_id       String       @unique // UUID as shown in ER diagram
+  userId         String // FK to User
+  fault_detected String
+  upload_date    DateTime     @default(now())
+  uploader       User         @relation("uploads", fields: [id], references: [id])
+  diagnostics    Diagnostic[] @relation("used_in")
+}
+
+model EngineSoundFile {
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
+  audio_url        String
+  diagnosis_result String
+  recorded_at      DateTime     @default(now())
+  recorder         User         @relation("records", fields: [id], references: [id])
+  userId           String // FK to User
+  diagnostics      Diagnostic[] @relation("used_in")
+}
+
+model Review {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String     @db.ObjectId
+  rating       Int
+  comment      String
+  date         DateTime   @default(now())
+  reviewer     User       @relation("writes", fields: [userId], references: [id])
+  diagnostic   Diagnostic @relation(fields: [diagnosticId], references: [id])
+  diagnosticId String     @db.ObjectId
+}
+
+model TutorialVideo {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  url          String
+  faultRelated String[]
+  diagnostic   Diagnostic @relation(fields: [diagnosticId], references: [id])
+  diagnosticId String     @db.ObjectId
+}
+
+model Diagnostic {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  vehicleId      String           @db.ObjectId
+  imageId        String?          @db.ObjectId
+  audioId        String?          @db.ObjectId
+  summary        String
+  faultCode      String
+  recommendation String
+  created_at     DateTime         @default(now())
+  vehicle        Vehicle          @relation("is_diagnosed", fields: [vehicleId], references: [id])
+  dashboardImage DashboardImage?  @relation("used_in", fields: [imageId], references: [id])
+  engineSound    EngineSoundFile? @relation("used_in", fields: [audioId], references: [id])
+  reviews        Review[]
+  tutorialVideo  TutorialVideo[]
+}
