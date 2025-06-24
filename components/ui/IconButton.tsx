@@ -1,7 +1,6 @@
 import { Colors } from '@/constants/Colors';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { ThemedText } from '../ThemedText';
 
 interface IconButtonProps {
     iconName:string
@@ -16,7 +15,7 @@ interface IconButtonProps {
 const IconButton = ({ iconName, title, navigateTo,iconSize = 40, color = Colors.appColors.primary, textColor = Colors.appColors.textSecondary, style }:IconButtonProps) => (
   <TouchableOpacity style={[styles.iconButton, style]} onPress={navigateTo}>
     <Icon name={iconName} size={iconSize} color={color} />
-    {title && <ThemedText style={[styles.iconButtonText, { color: textColor }]}>{title}</ThemedText>}
+    {title && <Text style={[styles.iconButtonText, { color: textColor }]}>{title}</Text>}
   </TouchableOpacity>
 );
 

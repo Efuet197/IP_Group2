@@ -1,7 +1,6 @@
-import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface ButtonProps {
@@ -19,7 +18,7 @@ const RoleButton = ({ title, navigateTo, role,iconName, style, textStyle, iconSi
   return (
     <TouchableOpacity style={[styles.button, style]} onPress={()=>navigateTo(role)}>
         {iconName && <Icon name={iconName} size={iconSize} color={Colors.appColors.textPrimary} style={styles.buttonIcon} />}
-        <ThemedText style={[styles.buttonText, textStyle]}>{title}</ThemedText>
+        <Text style={[styles.buttonText, textStyle]}>{title}</Text>
     </TouchableOpacity>
   )
 }
