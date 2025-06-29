@@ -4,25 +4,27 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { diag } from './viewHistory';
 
-export function DiagnosisResult({navigateTo, result}: {navigateTo: (screenName: string, params?: {}) => void, result?: any}) {
+export function DiagnosisResult({navigateTo, diagnosis}: {navigateTo: (screenName: string, params?: {}) => void, diagnosis: diag|null}) {
   // Accept result as prop
-  let diagnosis = result;
+  // let diagnosis = result;
+  console.log(diagnosis)
   // Fallback for demo/testing
   if (!diagnosis || typeof diagnosis === 'string') {
-    diagnosis = {
-      fault: typeof result === 'string' ? result : 'No diagnosis result provided.',
-      severity: '',
-      recommendation: '',
-      tutorialVideo: ''
-    };
+    // diagnosis = {
+    //   fault: typeof result === 'string' ? result : 'No diagnosis result provided.',
+    //   severity: '',
+    //   recommendation: '',
+    //   tutorialVideo: ''
+    // };
   }
 
   // Color for severity
   let severityColor = Colors.appColors.darkGray;
-  if (diagnosis.severity === 'High') severityColor = Colors.appColors.red;
-  else if (diagnosis.severity === 'Medium') severityColor = Colors.appColors.orange;
-  else if (diagnosis.severity === 'Low') severityColor = Colors.appColors.green;
+  if (diagnosis?.severity === 'High') severityColor = Colors.appColors.red;
+  else if (diagnosis?.severity === 'Medium') severityColor = Colors.appColors.orange;
+  else if (diagnosis?.severity === 'Low') severityColor = Colors.appColors.green;
 
   return (
     <SafeAreaView style={styles.diagnosisContainer}>
@@ -40,7 +42,16 @@ export function DiagnosisResult({navigateTo, result}: {navigateTo: (screenName: 
             <MaterialIcons name="report-problem" size={28} color={Colors.appColors.primary} style={styles.cardIcon} />
             <View style={{flex:1}}>
               <Text style={styles.diagnosisLabel}>Fault Identified:</Text>
-              <Text style={styles.diagnosisValue}>{diagnosis.fault}</Text>
+              <Text style={styles.diagnosisValue}>{diagnosis?.fault}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.diagnosisCard}>
+          <View style={styles.cardRow}>
+            <MaterialIcons name="report-problem" size={28} color={Colors.appColors.primary} style={styles.cardIcon} />
+            <View style={{flex:1}}>
+              <Text style={styles.diagnosisLabel}>Summary:</Text>
+              <Text style={styles.diagnosisValue}>{diagnosis?.summary}</Text>
             </View>
           </View>
         </View>
@@ -50,7 +61,7 @@ export function DiagnosisResult({navigateTo, result}: {navigateTo: (screenName: 
             <MaterialIcons name="priority-high" size={28} color={severityColor} style={styles.cardIcon} />
             <View style={{flex:1}}>
               <Text style={styles.diagnosisLabel}>Severity:</Text>
-              <Text style={[styles.diagnosisValue, { color: severityColor }]}>{diagnosis.severity}</Text>
+              <Text style={[styles.diagnosisValue, { color: severityColor }]}>{diagnosis?.severity}</Text>
             </View>
           </View>
         </View>
@@ -60,14 +71,14 @@ export function DiagnosisResult({navigateTo, result}: {navigateTo: (screenName: 
             <MaterialIcons name="lightbulb-outline" size={28} color={Colors.appColors.accent} style={styles.cardIcon} />
             <View style={{flex:1}}>
               <Text style={styles.diagnosisLabel}>Suggestions:</Text>
-              <Text style={styles.diagnosisValue}>{diagnosis.recommendation}</Text>
+              <Text style={styles.diagnosisValue}>{diagnosis?.recommendation}</Text>
             </View>
           </View>
         </View>
 
         {/* Video/Tutorial Section */}
         <View style={styles.videoSection}>
-          {diagnosis.tutorialVideo ? (
+          {diagnosis?.tutorialVideo ? (
             <TouchableOpacity style={styles.videoPlayBtn} onPress={() => Linking.openURL(diagnosis.tutorialVideo)}>
               <MaterialIcons name="play-circle-outline" size={80} color={Colors.appColors.primary} />
               <Text style={styles.videoText}>Watch Tutorial</Text>

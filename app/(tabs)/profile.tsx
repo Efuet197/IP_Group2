@@ -1,7 +1,9 @@
 import Header2 from '@/components/Header2';
 import { Colors } from '@/constants/Colors';
 import { useAppContext, UserRole } from '@/context/AppContext';
+import { API_BASE_URL } from '@/utils/authApi';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -12,17 +14,33 @@ const APP_VERSION = '1.0.0';
 const APP_ENV = 'development';
 
 const profile = () => {
-  const { user, logout } = useAppContext();
+  const { user,setUser ,logout } = useAppContext();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [fullName, setFullName] = useState<string>(user.fullName);
   const [phoneNumber, setPhoneNumber] = useState<string>(user.phoneNumber?.toString() || "");
   const [email, setEmail] = useState<string>(user.email || '');
   const [location, setLocation] = useState<string>(user.mechanicProfile?.workshopLocation || "");
   const [role, setRole] = useState<UserRole>(user.role);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const handleSave = () => {
+  const handleSave =async () => {
     // TODO: Save profile changes to backend
     setIsEditing(false);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/users/${user.id}`,{
+          fullName,
+          phoneNumber,
+          email,
+          garageLocation:location,
+          role
+      });
+      if(response.data) return response.data;
+      setIsEditing(false);
+    } catch (error:any) {
+      console.log(error)
+      setError(error.message)
+      setIsEditing(false);
+    }
   };
   const handleLogout = () => {
     logout();

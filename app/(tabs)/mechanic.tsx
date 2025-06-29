@@ -1,6 +1,8 @@
 import Header2 from '@/components/Header2';
 import { Colors } from '@/constants/Colors';
+import { API_BASE_URL } from '@/utils/authApi';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -17,7 +19,7 @@ const mechanicsData = [
 export default function Mechanic() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [mechanics, setMechanics] = useState<any[]>(mechanicsData);
+  const [mechanics, setMechanics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,13 +28,11 @@ export default function Mechanic() {
       setLoading(true);
       setError(null);
       try {
-        // Replace with your actual backend endpoint
-        const response = await fetch('https://your-backend-api.com/api/mechanics');
-        if (!response.ok) throw new Error('Failed to fetch mechanics');
-        const data = await response.json();
-        setMechanics(data);
+        const response = await axios.get(`${API_BASE_URL}/mechanics`);
+        console.log(response)
+        if(response.data) setMechanics(response.data);
       } catch (e: any) {
-        setError('Could not load mechanics.');
+        setError('Error.Could not fetch mechanics.');
       } finally {
         setLoading(false);
       }
@@ -40,19 +40,20 @@ export default function Mechanic() {
     fetchMechanics();
   }, []);
 
-  const filteredMechanics = mechanics.filter(
+  // const filteredMechanics:any[] =[]
+  const filteredMechanics =mechanics.filter(
     m =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.location.toLowerCase().includes(search.toLowerCase()) ||
+      m.userId.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      m.workshopLocation.toLowerCase().includes(search.toLowerCase()) ||
       (m.expertise || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const renderMechanicItem = ({ item }: { item: any }) => (
-    <View style={styles.mechanicCard}>
+    <View key={item._id} style={styles.mechanicCard}>
       <View style={styles.mechanicCardHeader}>
         <Ionicons name="person-circle-outline" size={40} color={Colors.appColors.primary} style={{marginRight: 10}} />
         <View style={{flex:1}}>
-          <Text style={styles.mechanicName}>{item.name}</Text>
+          <Text style={styles.mechanicName}>{item.userId.fullName}</Text>
           {item.expertise && (
             <View style={styles.mechanicExpertiseRow}>
               <MaterialIcons name="build" size={18} color={Colors.appColors.accent} />
@@ -66,11 +67,11 @@ export default function Mechanic() {
       </View>
       <View style={styles.mechanicInfoRow}>
         <Ionicons name="location" size={18} color={Colors.appColors.primary} />
-        <Text style={styles.mechanicLocation}>{item.location}</Text>
+        <Text style={styles.mechanicLocation}>{item.workshopLocation}</Text>
       </View>
       <View style={styles.mechanicInfoRow}>
         <Ionicons name="call" size={18} color={Colors.appColors.primary} />
-        <Text style={styles.mechanicPhone}>{item.phone}</Text>
+        <Text style={styles.mechanicPhone}>{item.userId.phoneNumber}</Text>
       </View>
     </View>
   );
@@ -130,6 +131,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.appColors.primary,
     paddingVertical: 6,
+    paddingHorizontal:10
   },
   findMechanicListContent: {
     padding: 18,
@@ -139,6 +141,8 @@ const styles = StyleSheet.create({
   mechanicCard: {
     backgroundColor: Colors.appColors.white,
     borderRadius: 14,
+    borderWidth:1,
+    borderColor:Colors.appColors.primary,
     padding: 18,
     marginBottom: 10,
     elevation: 3,

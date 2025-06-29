@@ -24,6 +24,7 @@ export interface Diagnostics {
 
 export interface User {
   id: string;
+  _id?: string;
   fullName: string;
   email?: string;
   phoneNumber?: number;
@@ -38,6 +39,7 @@ interface AppContextType {
   user: User;
   setUser: (user: User) => void;
   logout: () => void;
+  setIsSignedIn: (isSignedIn:boolean) => void
 }
 
 const defaultUser: User = {
@@ -57,6 +59,7 @@ const AppContext = createContext<AppContextType>({
     user: defaultUser,
     setUser: () => {},
     logout: () => {},
+    setIsSignedIn: ()=>{}
 });
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
@@ -69,10 +72,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         const storedUser = await AsyncStorage.getItem('user');
         
         if (token && storedUser) {
+          console.log("Found user and token")
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
           setIsSignedIn(true);
         } else {
+          console.log("Couldn't find user and token")
           setIsSignedIn(false);
           setUser(defaultUser);
         }
@@ -111,7 +116,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AppContext.Provider value={{ isSignedIn,user, setUser, logout }}>
+    <AppContext.Provider value={{ isSignedIn,user, setUser, logout,setIsSignedIn }}>
       {children}
     </AppContext.Provider>
   );

@@ -1,11 +1,30 @@
 import { Colors } from '@/constants/Colors';
+import { useAppContext } from '@/context/AppContext';
+import { API_BASE_URL } from '@/utils/authApi';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function History({navigateTo}:{navigateTo:(screenName: string, params?: {}) => void}) {
+export type diag={
+  _id:string,
+  tutorialVideo:string,
+  summary: string,
+  fault:string,
+  severity:string,
+  recommendation:string,
+  createdAt:string
+}
+interface componentProps {
+  navigateTo:(screenName: string, params?: {}) => void
+  setRouteParams:()=>void
+}
 
+export default function History({navigateTo,setRouteParams}: {navigateTo:(screenName: string, params?: {}) => void,setRouteParams:React.Dispatch<React.SetStateAction<{
+    diagnosis: diag | null;
+}>>}) {
+  const { user } = useAppContext();
   const historyData = [
     { id: '1', date: 'May 31, 2025', fault: 'Low Engine Oil Pressure', severity: 'High', summary: 'Engine oil pressure dropped below safe level.' },
     { id: '2', date: 'May 31, 2025', fault: 'Low Engine Oil Pressure', severity: 'Low', summary: 'Minor oil pressure fluctuation.' },
@@ -16,7 +35,7 @@ export default function History({navigateTo}:{navigateTo:(screenName: string, pa
     { id: '7', date: 'May 30, 2025', fault: 'Brake Fluid Low', severity: 'Medium', summary: 'Brake fluid warning.' },
     { id: '8', date: 'May 29, 2025', fault: 'Tire Pressure Imbalance', severity: 'Low', summary: 'Minor tire pressure issue.' },
   ];
-
+  const [diagnostics,setDiagnostics]=useState<diag[]>([])
   // Stats
   const totalScans = historyData.length;
   const lastScan = historyData[0]?.date;
@@ -39,10 +58,14 @@ export default function History({navigateTo}:{navigateTo:(screenName: string, pa
     }
   };
 
-  const renderHistoryItem = ({ item }: { item: typeof historyData[0] }) => (
+  const renderHistoryItem = ({ item }: { item: diag }) => (
     <TouchableOpacity
+      key={item._id}
       style={styles.historyItem}
-      onPress={() => navigateTo('DiagnosisResult', { diagnosis: item })}
+      onPress={() => {
+        setRouteParams({ diagnosis: item })
+        navigateTo('DiagnosisResult', { diagnosis: item })
+      }}
       activeOpacity={0.8}
     >
       <View style={styles.historyItemIconCol}>
@@ -50,16 +73,34 @@ export default function History({navigateTo}:{navigateTo:(screenName: string, pa
         <MaterialCommunityIcons name="chevron-right" size={28} color={Colors.appColors.gray} />
       </View>
       <View style={styles.historyItemDetails}>
-        <Text style={styles.historyItemDateText}>{item.date}</Text>
+        <Text style={styles.historyItemDateText}>{item.createdAt.slice(0,11)}</Text>
         <Text style={styles.historyItemFault}>{item.fault}</Text>
         <Text style={styles.historyItemSummary}>{item.summary || 'No summary available.'}</Text>
-        <View style={[styles.severityTag, { backgroundColor: getSeverityColor(item.severity) }]}> 
+        <View style={[styles.severityTag, { backgroundColor: getSeverityColor(item.severity || "") }]}> 
           <Text style={styles.severityTagText}>{item.severity}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      // setLoading(true);
+      // setError(null);
+      try {
+        console.log(user)
+        const response = await axios.get(`${API_BASE_URL}/diagnostics/${user.id || user._id}`);
+        console.log(response)
+        if(response.data){
+          setDiagnostics(response.data)
+        }
+      } catch (e: any) {
+        console.log('Error.Could not fetch history.',e);
+      } finally {
+      }
+    };
+    fetchHistory();
+  }, []);
   return (
     <SafeAreaView style={styles.historyContainer}>
       <View style={styles.historyHeader}>
@@ -87,9 +128,9 @@ export default function History({navigateTo}:{navigateTo:(screenName: string, pa
         </View>
       </View>
       <FlatList
-        data={historyData}
+        data={diagnostics}
         renderItem={renderHistoryItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.historyListContent}
       />
     </SafeAreaView>

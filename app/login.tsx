@@ -38,7 +38,7 @@ export default function Login({navigateTo}:{navigateTo?:(screenName: string, par
             }
         } catch(err:any) {
           console.log(err)
-            setError('Login failed. '+ err.response.data.message+ " Please check your credentials.");
+            setError('Login failed. '+ err.response.data.message+ "");
         } finally {
             setLoading(false);
         }
@@ -71,7 +71,7 @@ export default function Login({navigateTo}:{navigateTo?:(screenName: string, par
                   <View style={styles.inputGroup}>
                       <TextInput
                       style={styles.input}
-                      placeholder="Email"
+                      placeholder="Email or phone number"
                       placeholderTextColor={Colors.appColors.gray}
                       keyboardType="email-address"
                       value={email}
