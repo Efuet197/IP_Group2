@@ -70,7 +70,7 @@ export default function ScanDashboard({navigateTo}:{navigateTo:(screenName: stri
       console.log(result);
 
       if (!result.canceled) {
-        setImage(result.assets[0].file);
+        setImage(result.assets[0].uri);
         setImage2(result.assets[0]);
         setBase64(result.assets[0].base64);
         setMimeType(result.assets[0].mimeType);

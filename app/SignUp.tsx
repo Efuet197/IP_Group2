@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   passwordToggle: {
-    paddingLeft: 10,
+    paddingLeft: 1,
   },
   bottomText:{
     textAlign:'center',

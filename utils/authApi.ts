@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:8000/api'; // Replace with your Express backend URL
+export const API_BASE_URL ='https://carcare-backend-4yyt.onrender.com' //'http://localhost:8000/api'; // Replace with your Express backend URL
 
 export async function loginUser(email: string, password: string) {
     // const response = await fetch(`${API_BASE_URL}/auth/login`, {

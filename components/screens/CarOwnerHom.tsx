@@ -14,9 +14,9 @@ export default function CarOwnerHome({navigateTo}:{navigateTo:(screenName: strin
     const router=useRouter()
     // Example: Replace with actual recent scans count from props or context
     const metrics = {
-      totalScans: 12,
-      lastScan: '2025-06-20',
-      diagnosticsFound: 5,
+      totalScans: 0,
+      lastScan: '-',
+      diagnosticsFound: 0,
     };
     return (
         <SafeAreaView style={styles.container}>

@@ -11,13 +11,13 @@ const SplashScreen = ({navigateTo}:{navigateTo?:(screenName: string, params?: {}
   const router=useRouter()
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      isSignedIn?router.push('/(tabs)/home'):router.push('/signup')
-    }, 3000);
+      isSignedIn?router.push('/(tabs)/home'):router.push('/login')
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
-  React.useEffect(() => {
-    isSignedIn && router.push('/(tabs)/home')
-  }, [isSignedIn]);
+  // React.useEffect(() => {
+  //   isSignedIn && router.push('/(tabs)/home')
+  // }, [isSignedIn]);
 
   const handleScreenTouch=(e:any)=>{
     e.preventDefault()
