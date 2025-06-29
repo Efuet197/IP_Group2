@@ -15,7 +15,7 @@ const app: Express = express();
 const port = process.env.PORT || 8000;
 
 app.use(express.urlencoded({extended:true}))
-app.use(cors({origin:'http://localhost:8081'}))
+app.use(cors({origin:'*'}))
 app.use(express.json());
 // app.use('/api', routes);
 app.use('/api', router);
