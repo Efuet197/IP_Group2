@@ -150,9 +150,23 @@ export function RecordSound({navigateTo}:{navigateTo:(screenName: string, params
       setDiagnoseResult(result?.diagnosis || JSON.stringify(result));
       // Navigate to diagnosticResult screen and pass the result
       navigateTo('DiagnosisResult', { result: result?.diagnosis || JSON.stringify(result) });
-    } catch (err) {
-      setDiagnoseResult('Failed to diagnose audio.');
-      navigateTo('DiagnosisResult', { result: 'Failed to diagnose audio.' });
+    } catch (err: any) {
+      console.log('Diagnose audio error:', err);
+      let errorMsg = 'Failed to diagnose audio.';
+      if (err?.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        } else if (err.response.data.message) {
+          errorMsg = err.response.data.message;
+        } else {
+          errorMsg = JSON.stringify(err.response.data);
+        }
+      } else if (err?.message) {
+        errorMsg = err.message;
+      }
+      setDiagnoseResult(errorMsg);
+      alert(errorMsg);
+      navigateTo('DiagnosisResult', { result: errorMsg });
     } finally {
       setDiagnoseLoading(false);
     }

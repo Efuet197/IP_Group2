@@ -31,7 +31,8 @@ export interface User {
   location?: string;
   role: UserRole;
   mechanicProfile?: MechanicProfile;
-  diagnostics:Diagnostics[]
+  diagnostics:Diagnostics[],
+  isSignedIn:boolean;
 }
 
 interface AppContextType {
@@ -49,7 +50,8 @@ const defaultUser: User = {
     phoneNumber: 1234567890,
     location: 'New York',
     role: 'carOwner',
-    diagnostics:[]
+    diagnostics:[],
+    isSignedIn:false,
     // createdAt: new Date().toISOString(),
     // updatedAt: new Date().toISOString(),
 };
@@ -70,12 +72,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       try {
         const token = await AsyncStorage.getItem('token');
         const storedUser = await AsyncStorage.getItem('user');
-        
         if (token && storedUser) {
           console.log("Found user and token")
           const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser);
           setIsSignedIn(true);
+          setUser(parsedUser);
         } else {
           console.log("Couldn't find user and token")
           setIsSignedIn(false);
@@ -93,6 +94,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     const persistUser = async () => {
       try {
         if (user && user.id !== defaultUser.id) {
+          setIsSignedIn(true);
           await AsyncStorage.setItem('user', JSON.stringify(user));
         }
       } catch (e) {
@@ -101,7 +103,9 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     };
     persistUser();
   }, [user]);
-
+  useEffect(()=>{
+    console.log("Changing... ",isSignedIn)
+  },[isSignedIn])
   const logout = async () => {
     setUser(defaultUser);
     setIsSignedIn(false);
