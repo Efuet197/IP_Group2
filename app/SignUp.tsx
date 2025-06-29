@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { useAppContext } from '@/context/AppContext';
+import { registerUser } from '@/utils/authApi';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -28,52 +29,52 @@ export default function SignUp({navigateTo}:{navigateTo:(screenName: string, par
     const handleSignUp = async () => {
       setError(null);
       // Validation
-      // if (!name || !password || !confirmPassword) {
-      //   setError('Full name and password are required.');
-      //   return;
-      // }
-      // if (signupMethod === 'email') {
-      //   if (!email) {
-      //     setError('Email is required.');
-      //     return;
-      //   }
-      //   if (!/^\S+@\S+\.\S+$/.test(email)) {
-      //     setError('Please enter a valid email address.');
-      //     return;
-      //   }
-      // } else {
-      //   if (!phoneNumber) {
-      //     setError('Phone number is required.');
-      //     return;
-      //   }
-      //   if (!/^\d{7,}$/.test(phoneNumber)) {
-      //     setError('Please enter a valid phone number.');
-      //     return;
-      //   }
-      // }
-      // if (password.length < 6) {
-      //   setError('Password must be at least 6 characters.');
-      //   return;
-      // }
-      // if (password !== confirmPassword) {
-      //   setError('Passwords do not match.');
-      //   return;
-      // }
-      // if (role === 'mechanic' && !garageLocation) {
-      //   setError('Garage location is required for mechanics.');
-      //   return;
-      // }
+      if (!name || !password || !confirmPassword) {
+        setError('Full name and password are required.');
+        return;
+      }
+      if (signupMethod === 'email') {
+        if (!email) {
+          setError('Email is required.');
+          return;
+        }
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+          setError('Please enter a valid email address.');
+          return;
+        }
+      } else {
+        if (!phoneNumber) {
+          setError('Phone number is required.');
+          return;
+        }
+        if (!/^\d{7,}$/.test(phoneNumber)) {
+          setError('Please enter a valid phone number.');
+          return;
+        }
+      }
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+      if (role === 'mechanic' && !garageLocation) {
+        setError('Garage location is required for mechanics.');
+        return;
+      }
       setLoading(true);
       try {
-        // const user = await registerUser({
-        //   fullName: name,
-        //   email: signupMethod === 'email' ? email : undefined,
-        //   password,
-        //   phoneNumber: signupMethod === 'phone' ? phoneNumber : undefined,
-        //   role,
-        //   workshopLocation: role === 'mechanic' ? garageLocation : undefined,
-        // });
-        // setUser(user);
+        const user = await registerUser({
+          fullName: name,
+          email: signupMethod === 'email' ? email : undefined,
+          password,
+          phoneNumber: signupMethod === 'phone' ? phoneNumber : undefined,
+          role,
+          workshopLocation: role === 'mechanic' ? garageLocation : undefined,
+        });
+        setUser(user);
         router.push('/(tabs)/home');
       } catch(err) {
         setError('Registration failed. Please try again.');
