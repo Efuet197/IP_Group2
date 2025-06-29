@@ -15,9 +15,6 @@ const upload = multer({ storage: multer.memoryStorage() });
  * tags:
  *   - name: Users
  *   - name: Mechanics
- *   - name: VehicleOwners
- *   - name: DashboardImages
- *   - name: EngineSoundFiles
  *   - name: Reviews
  *   - name: TutorialVideos
  *   - name: Diagnostics
@@ -71,75 +68,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @swagger
- * /vehicle-owners:
- *   get:
- *     summary: Get all vehicle owners
- *     tags: [VehicleOwners]
- *     responses:
- *       200:
- *         description: List of vehicle owners
- *   post:
- *     summary: Create a vehicle owner
- *     tags: [VehicleOwners]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/VehicleOwner'
- *     responses:
- *       201:
- *         description: Vehicle owner created
- */
-
-/**
- * @swagger
- * /dashboard-images:
- *   get:
- *     summary: Get all dashboard images
- *     tags: [DashboardImages]
- *     responses:
- *       200:
- *         description: List of dashboard images
- *   post:
- *     summary: Upload a dashboard image
- *     tags: [DashboardImages]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/DashboardImage'
- *     responses:
- *       201:
- *         description: Dashboard image uploaded
- */
-
-/**
- * @swagger
- * /engine-sound-files:
- *   get:
- *     summary: Get all engine sound files
- *     tags: [EngineSoundFiles]
- *     responses:
- *       200:
- *         description: List of engine sound files
- *   post:
- *     summary: Upload an engine sound file
- *     tags: [EngineSoundFiles]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/EngineSoundFile'
- *     responses:
- *       201:
- *         description: Engine sound file uploaded
- */
-
-/**
- * @swagger
  * /reviews:
  *   get:
  *     summary: Get all reviews
@@ -186,9 +114,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @swagger
- * /diagnostics:
+ * /diagnostics/userId:
  *   get:
- *     summary: Get all diagnostics
+ *     summary: Get all diagnostics by a specific user
  *     tags: [Diagnostics]
  *     responses:
  *       200:
@@ -204,97 +132,73 @@ const upload = multer({ storage: multer.memoryStorage() });
  *       properties:
  *         id:
  *           type: string
+ *         fullName:
+ *           type: string
  *         email:
  *           type: string
  *         password:
  *           type: string
- *         name:
- *           type: string
+ *         phoneNumber:
+ *           type: integer
  *         role:
  *           type: string
- *         createdAt:
- *           type: string
- *           format: date-time
- *     Mechanic:
+ *           enum: [car_owner, mechanic]
+ *         mechanicProfile:
+ *           $ref: '#/components/schemas/MechanicProfile'
+ *         diagnostics:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Diagnostic'
+ *     MechanicProfile:
  *       type: object
  *       properties:
  *         id:
+ *           type: string
+ *         experience_years:
+ *           type: integer
+ *         specialization:
+ *           type: string
+ *         availability_status:
+ *           type: boolean
+ *         workshopLocation:
  *           type: string
  *         userId:
  *           type: string
- *         expertise:
+ *         reviews:
  *           type: array
  *           items:
- *             type: string
- *         rating:
- *           type: number
- *     VehicleOwner:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         userId:
- *           type: string
- *         vehicles:
- *           type: array
- *           items:
- *             type: string
- *     DashboardImage:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         url:
- *           type: string
- *         uploadedBy:
- *           type: string
- *         uploadedAt:
- *           type: string
- *           format: date-time
- *     EngineSoundFile:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *         url:
- *           type: string
- *         uploadedBy:
- *           type: string
- *         uploadedAt:
- *           type: string
- *           format: date-time
+ *             $ref: '#/components/schemas/Review'
  *     Review:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *         reviewerId:
- *           type: string
- *         mechanicId:
+ *         userId:
  *           type: string
  *         rating:
  *           type: integer
  *         comment:
  *           type: string
- *         createdAt:
+ *         date:
  *           type: string
  *           format: date-time
+ *         diagnosticId:
+ *           type: string
  *     TutorialVideo:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *         url:
- *           type: string
  *         title:
  *           type: string
- *         description:
+ *         url:
  *           type: string
- *         uploadedBy:
+ *         faultRelated:
+ *           type: array
+ *           items:
+ *             type: string
+ *         diagnosticId:
  *           type: string
- *         uploadedAt:
- *           type: string
- *           format: date-time
  *     Diagnostic:
  *       type: object
  *       properties:
@@ -302,18 +206,29 @@ const upload = multer({ storage: multer.memoryStorage() });
  *           type: string
  *         vehicleId:
  *           type: string
- *         userId:
+ *         imageId:
  *           type: string
- *         symptoms:
- *           type: array
- *           items:
- *             type: string
- *         result:
+ *         audioId:
  *           type: string
- *         createdAt:
+ *         summary:
+ *           type: string
+ *         faultCode:
+ *           type: string
+ *         recommendation:
+ *           type: string
+ *         created_at:
  *           type: string
  *           format: date-time
+ *         reviews:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Review'
+ *         tutorialVideo:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/TutorialVideo'
  */
+
 
 /**
  * @swagger
@@ -329,18 +244,24 @@ const upload = multer({ storage: multer.memoryStorage() });
  *             type: object
  *             required:
  *               - email
+ *               - phoneNumber
  *               - password
- *               - name
+ *               - fullName
  *               - role
  *             properties:
  *               email:
+ *                 type: string
+ *               phoneNumber:
  *                 type: string
  *               password:
  *                 type: string
  *               name:
  *                 type: string
+ *               workshopLocation:
+ *                 type: string
  *               role:
  *                 type: string
+ *                 enum: [car_owner, mechanic]
  *     responses:
  *       201:
  *         description: User created
@@ -400,7 +321,7 @@ router.post('/users', async (req, res) => {
 // Mechanic Endpoints
 router.get('/mechanics', async (req, res) => {
   try {
-    const mechanics = await prisma.mechanic.findMany();
+    const mechanics = await prisma.mechanicProfile.findMany(); 
     res.json(mechanics);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch mechanics', error: err });
@@ -408,66 +329,48 @@ router.get('/mechanics', async (req, res) => {
 });
 router.post('/mechanics', async (req, res) => {
   try {
-    const mechanic = await prisma.mechanic.create({ data: req.body });
+    const mechanic = await prisma.mechanicProfile.create({ data: req.body });
     res.status(201).json(mechanic);
   } catch (err) {
     res.status(500).json({ message: 'Failed to create mechanic', error: err });
   }
 });
 
-// VehicleOwner Endpoints
-router.get('/vehicle-owners', async (req, res) => {
-  try {
-    const owners = await prisma.vehicleOwner.findMany();
-    res.json(owners);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch vehicle owners', error: err });
-  }
-});
-router.post('/vehicle-owners', async (req, res) => {
-  try {
-    const owner = await prisma.vehicleOwner.create({ data: req.body });
-    res.status(201).json(owner);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to create vehicle owner', error: err });
-  }
-});
-
 // DashboardImage Endpoints
-router.get('/dashboard-images', async (req, res) => {
-  try {
-    const images = await prisma.dashboardImage.findMany();
-    res.json(images);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch dashboard images', error: err });
-  }
-});
-router.post('/dashboard-images', async (req, res) => {
-  try {
-    const image = await prisma.dashboardImage.create({ data: req.body });
-    res.status(201).json(image);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to upload dashboard image', error: err });
-  }
-});
+// router.get('/dashboard-images', async (req, res) => {
+//   try {
+//     const images = await prisma.dashboardImage.findMany();
+//     res.json(images);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Failed to fetch dashboard images', error: err });
+//   }
+// });
+// router.post('/dashboard-images', async (req, res) => {
+//   try {
+//     const image = await prisma.dashboardImage.create({ data: req.body });
+//     res.status(201).json(image);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Failed to upload dashboard image', error: err });
+//   }
+// });
 
 // EngineSoundFile Endpoints
-router.get('/engine-sound-files', async (req, res) => {
-  try {
-    const files = await prisma.engineSoundFile.findMany();
-    res.json(files);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch engine sound files', error: err });
-  }
-});
-router.post('/engine-sound-files', async (req, res) => {
-  try {
-    const file = await prisma.engineSoundFile.create({ data: req.body });
-    res.status(201).json(file);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to upload engine sound file', error: err });
-  }
-});
+// router.get('/engine-sound-files', async (req, res) => {
+//   try {
+//     const files = await prisma.engineSoundFile.findMany();
+//     res.json(files);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Failed to fetch engine sound files', error: err });
+//   }
+// });
+// router.post('/engine-sound-files', async (req, res) => {
+//   try {
+//     const file = await prisma.engineSoundFile.create({ data: req.body });
+//     res.status(201).json(file);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Failed to upload engine sound file', error: err });
+//   }
+// });
 
 // Review Endpoints
 router.get('/reviews', async (req, res) => {
@@ -506,26 +409,20 @@ router.post('/tutorial-videos', async (req, res) => {
 });
 
 // Diagnostic Endpoints
-router.get('/diagnostics', async (req, res) => {
+router.get('/diagnostics/:userId', async (req, res) => {
   try {
-    const diagnostics = await prisma.diagnostic.findMany();
+    const {userId}=req.params
+    const diagnostics = await prisma.diagnostic.findMany({where:{user:{id:userId}}});
     res.json(diagnostics);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch diagnostics', error: err });
   }
 });
-// router.post('/diagnostics', async (req, res) => {
-//   try {
-//     const diagnostic = await prisma.diagnostic.create({ data: req.body });
-//     res.status(201).json(diagnostic);
-//   } catch (err) {
-//     res.status(500).json({ message: 'Failed to create diagnostic', error: err });
-//   }
-// });
+
 
 // Signup Route
 router.post('/auth/signup', async (req: Request, res: Response):Promise<any> => {
-  const { email, password, name, role } = req.body;
+  const { email, password, fullName, role } = req.body;
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -533,7 +430,7 @@ router.post('/auth/signup', async (req: Request, res: Response):Promise<any> => 
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name, role },
+      data: { email, password: hashedPassword, fullName, role },
     });
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },

@@ -16,7 +16,7 @@ const options = {
       },
     ],
   },
-  apis: ['./src/routes.ts','./src/routes.mongoose.ts'], // Path to the API docs
+  apis: ['./src/routes.mongoose.ts'], // Path to the API docs
 };
 
 const swaggerSpec = swaggerJsdoc(options);

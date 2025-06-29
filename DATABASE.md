@@ -1,7 +1,7 @@
 # CarCare Database Design (Prisma + MongoDB)
 
 ## Overview
-This project uses [Prisma ORM](https://www.prisma.io/) with MongoDB as the database for a car fault diagnosis system. The schema is defined in `prisma/schema.prisma` and models the relationships between users, vehicles, diagnostics, media files, reviews, and tutorial videos.
+This project uses [Prisma ORM](https://www.prisma.io/) with MongoDB as the database for a car fault diagnosis system. The schema is defined in `prisma/schema.prisma` and models the relationships between users, users vehicles, diagnostics, media files, reviews, and tutorial videos.
 
 ## Key Concepts
 - **User Roles:** There are two main user roles: `car_owner` and `mechanic` (see the `UserRole` enum).

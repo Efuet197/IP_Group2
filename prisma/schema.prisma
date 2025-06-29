@@ -14,74 +14,76 @@ datasource db {
 }
 
 enum UserRole {
-  car_owner
+  carOwner
   mechanic
 }
 
 model User {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  full_name        String
-  email            String?           @unique
-  password         String
-  phone_number     Int?              @unique
-  location         String?
-  role             UserRole
-  vehicles         Vehicle[]         @relation("owns")
-  dashboardImages  DashboardImage[]  @relation("uploads")
-  engineSoundFiles EngineSoundFile[] @relation("records")
-  reviews          Review[]          @relation("writes")
-  mechanicProfile  MechanicProfile?  @relation("is")
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  fullName        String
+  email           String?          @unique
+  password        String
+  phoneNumber     String?          @unique
+  role            UserRole         @default(carOwner)
+  diagnostics     Diagnostic[]     @relation("is_diagnosed_by")
+  // vehicles         Vehicle[]         @relation("owns")
+  // dashboardImages  DashboardImage[]  @relation("uploads")
+  // engineSoundFiles EngineSoundFile[] @relation("records")
+  mechanicProfile MechanicProfile? @relation("is")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
 }
 
 model MechanicProfile {
-  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
-  experience_years    Int
-  specialization      String
-  availability_status Boolean
-  workshop_location   String
-  user                User    @relation("is", fields: [id], references: [id])
-  userId              String  @unique // UUID as FK
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  experienceYears    Int
+  expertise          String?
+  availabilityStatus Boolean?
+  workshopLocation   String
+  user               User     @relation("is", fields: [id], references: [id])
+  userId             String   @unique // UUID as FK
+  reviews            Review[]
+  rating             Int?
 }
 
-model Vehicle {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  make        String
-  model       String
-  year        Int
-  user        User         @relation("owns", fields: [id], references: [id])
-  userId      String // FK to User
-  diagnostics Diagnostic[] @relation("is_diagnosed")
-}
+// model Vehicle {
+//   id          String       @id @default(auto()) @map("_id") @db.ObjectId
+//   make        String
+//   model       String
+//   year        Int
+//   // user        User         @relation("owns", fields: [id], references: [id])
+//   userId      String // FK to User
+//   // diagnostics Diagnostic[] @relation("is_diagnosed")
+// }
 
-model DashboardImage {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  image_id       String       @unique // UUID as shown in ER diagram
-  userId         String // FK to User
-  fault_detected String
-  upload_date    DateTime     @default(now())
-  uploader       User         @relation("uploads", fields: [id], references: [id])
-  diagnostics    Diagnostic[] @relation("used_in")
-}
+// model DashboardImage {
+//   id             String       @id @default(auto()) @map("_id") @db.ObjectId
+//   image_id       String       @unique // UUID as shown in ER diagram
+//   userId         String // FK to User
+//   fault_detected String
+//   upload_date    DateTime     @default(now())
+//   uploader       User         @relation("uploads", fields: [id], references: [id])
+//   diagnostics    Diagnostic[] @relation("used_in")
+// }
 
-model EngineSoundFile {
-  id               String       @id @default(auto()) @map("_id") @db.ObjectId
-  audio_url        String
-  diagnosis_result String
-  recorded_at      DateTime     @default(now())
-  recorder         User         @relation("records", fields: [id], references: [id])
-  userId           String // FK to User
-  diagnostics      Diagnostic[] @relation("used_in")
-}
+// model EngineSoundFile {
+//   id               String       @id @default(auto()) @map("_id") @db.ObjectId
+//   audio_url        String
+//   diagnosis_result String
+//   recorded_at      DateTime     @default(now())
+//   recorder         User         @relation("records", fields: [id], references: [id])
+//   userId           String // FK to User
+//   diagnostics      Diagnostic[] @relation("used_in")
+// }
 
 model Review {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String     @db.ObjectId
-  rating       Int
-  comment      String
-  date         DateTime   @default(now())
-  reviewer     User       @relation("writes", fields: [userId], references: [id])
-  diagnostic   Diagnostic @relation(fields: [diagnosticId], references: [id])
-  diagnosticId String     @db.ObjectId
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String          @db.ObjectId
+  rating     Int
+  comment    String?
+  date       DateTime        @default(now())
+  mechanic   MechanicProfile @relation(fields: [mechanicId], references: [id])
+  mechanicId String          @db.ObjectId
 }
 
 model TutorialVideo {
@@ -94,17 +96,17 @@ model TutorialVideo {
 }
 
 model Diagnostic {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  vehicleId      String           @db.ObjectId
-  imageId        String?          @db.ObjectId
-  audioId        String?          @db.ObjectId
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String          @db.ObjectId
+  // imageId        String?          @db.ObjectId
+  // audioId        String?          @db.ObjectId
   summary        String
-  faultCode      String
+  faultCode      String?
   recommendation String
-  created_at     DateTime         @default(now())
-  vehicle        Vehicle          @relation("is_diagnosed", fields: [vehicleId], references: [id])
-  dashboardImage DashboardImage?  @relation("used_in", fields: [imageId], references: [id])
-  engineSound    EngineSoundFile? @relation("used_in", fields: [audioId], references: [id])
-  reviews        Review[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
+  user           User            @relation("is_diagnosed_by", fields: [userId], references: [id])
+  // dashboardImage DashboardImage?  @relation("used_in", fields: [imageId], references: [id])
+  // engineSound    EngineSoundFile? @relation("used_in", fields: [audioId], references: [id])
   tutorialVideo  TutorialVideo[]
 }
