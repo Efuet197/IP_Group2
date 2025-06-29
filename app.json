@@ -13,7 +13,7 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to take photos/videos for your profile.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images/videos.",
-        "NSMicrophoneUsageDescription": "This app needs microphone access for recording audio/video.",
+        "NSMicrophoneUsageDescription": "This app needs microphone access for recording audio/video."
       }
     },
     "android": {
@@ -41,9 +41,9 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 400,
-          "resizeMode": "contain",
-          "backgroundColor": "#008080"
+          "imageWidth": 500,
+          "resizeMode": "cover",
+          "backgroundColor": "#1A6771"
         }
       ],
       [

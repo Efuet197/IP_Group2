@@ -1,153 +1,206 @@
-import Header from '@/components/Header';
+import Header2 from '@/components/Header2';
 import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
+import { API_BASE_URL } from '@/utils/authApi';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+
+const mechanicsData = [
+  { id: '1', name: 'Adam Marmont', location: 'Chief Street Bomaka, Buea', phone: '+237671818471', expertise: 'Engine Specialist' },
+  { id: '2', name: 'Henry Bright', location: 'Clerks Quaters, Buea', phone: '+237677853329', expertise: 'Electrical Systems' },
+  { id: '3', name: 'Lewis Hall', location: 'Half Mile, Limbe', phone: '+237680689460', expertise: 'Diagnostics' },
+  { id: '4', name: 'Jane Doe', location: 'Molyko, Buea', phone: '+237690123456', expertise: 'Brakes & Suspension' },
+];
 
 export default function Mechanic() {
   const router = useRouter();
+  const [search, setSearch] = useState('');
+  const [mechanics, setMechanics] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mechanicsData = [
-    { id: '1', name: 'Adam Marmont', location: 'Chief Street Bomaka, Buea', phone: '+237671818471' },
-    { id: '2', name: 'Henry Bright', location: 'Clerks Quaters, Buea', phone: '+237677853329' },
-    { id: '3', name: 'Lewis Hall', location: 'Half Mile, Limbe', phone: '+237680689460' },
-  ];
+  useEffect(() => {
+    const fetchMechanics = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/mechanics`);
+        console.log(response)
+        if(response.data) setMechanics(response.data);
+      } catch (e: any) {
+        setError('Error.Could not fetch mechanics.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMechanics();
+  }, []);
 
-  const renderMechanicItem = ({ item }: { item: typeof mechanicsData[0] }) => (
-    <TouchableOpacity style={styles.mechanicItem}>
-        <Text style={styles.mechanicName}>
-            <Ionicons name="person-circle-outline" size={25} color={Colors.appColors.primary} />
-            {item.name}
-        </Text>
-        <Text style={styles.mechanicLocation}>
-            <Ionicons name="location" size={25} color={Colors.appColors.primary} />
-            {item.location}
-        </Text>
-        <Text style={styles.mechanicPhone}>
-            <Ionicons name="call" size={20} color={Colors.appColors.primary} />
-            {item.phone}
-        </Text>
-        <TouchableOpacity style={styles.callButton} >
-            <Text style={styles.callButtonText}>Call</Text>
+  // const filteredMechanics:any[] =[]
+  const filteredMechanics =mechanics.filter(
+    m =>
+      m.userId.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      m.workshopLocation.toLowerCase().includes(search.toLowerCase()) ||
+      (m.expertise || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  const renderMechanicItem = ({ item }: { item: any }) => (
+    <View key={item._id} style={styles.mechanicCard}>
+      <View style={styles.mechanicCardHeader}>
+        <Ionicons name="person-circle-outline" size={40} color={Colors.appColors.primary} style={{marginRight: 10}} />
+        <View style={{flex:1}}>
+          <Text style={styles.mechanicName}>{item.userId.fullName}</Text>
+          {item.expertise && (
+            <View style={styles.mechanicExpertiseRow}>
+              <MaterialIcons name="build" size={18} color={Colors.appColors.accent} />
+              <Text style={styles.mechanicExpertise}>{item.expertise}</Text>
+            </View>
+          )}
+        </View>
+        <TouchableOpacity style={styles.callButton} onPress={() => {}}>
+          <Ionicons name="call" size={20} color={Colors.appColors.white} />
         </TouchableOpacity>
-    </TouchableOpacity>
+      </View>
+      <View style={styles.mechanicInfoRow}>
+        <Ionicons name="location" size={18} color={Colors.appColors.primary} />
+        <Text style={styles.mechanicLocation}>{item.workshopLocation}</Text>
+      </View>
+      <View style={styles.mechanicInfoRow}>
+        <Ionicons name="call" size={18} color={Colors.appColors.primary} />
+        <Text style={styles.mechanicPhone}>{item.userId.phoneNumber}</Text>
+      </View>
+    </View>
   );
 
   return (
     <SafeAreaView style={styles.findMechanicContainer}>
-      <Header title="CarCare" />
-      {/* <View style={styles.findMechanicHeader}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={30} color={Colors.appColors.darkGray} />
-        </TouchableOpacity>
-        <Text style={styles.findMechanicTitle}>Find Mechanic</Text>
-      </View> */}
-      <FlatList
-        data={mechanicsData}
-        renderItem={renderMechanicItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.findMechanicListContent}
-      />
+      <Header2 title="Find a Mechanic" />
+      <View style={styles.filterBar}>
+        <Ionicons name="search" size={22} color={Colors.appColors.primary} style={{marginRight: 8}} />
+        <TextInput
+          style={styles.filterInput}
+          placeholder="Search by name, location, or expertise..."
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor={Colors.appColors.gray}
+        />
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color={Colors.appColors.primary} style={{marginTop: 40}} />
+      ) : error ? (
+        <Text style={styles.emptyText}>{error}</Text>
+      ) : (
+        <FlatList
+          data={filteredMechanics}
+          renderItem={renderMechanicItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.findMechanicListContent}
+          ListEmptyComponent={<Text style={styles.emptyText}>No mechanics found.</Text>}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
-const styles=StyleSheet.create({
+const styles = StyleSheet.create({
   findMechanicContainer: {
     flex: 1,
     backgroundColor: Colors.appColors.secondary,
   },
-  backButton: {
-    alignSelf: 'flex-start',
-    padding: 20,
-    paddingRight:1,
-  },
-  findMechanicHeader: {
+  filterBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    backgroundColor: Colors.appColors.primary, // Changed to primary as per design
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    backgroundColor: Colors.appColors.white,
+    borderRadius: 12,
+    margin: 18,
+    marginBottom: 0,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
   },
-  findMechanicTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.appColors.white,
-    marginLeft: 20,
+  filterInput: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.appColors.primary,
+    paddingVertical: 6,
+    paddingHorizontal:10
   },
   findMechanicListContent: {
-    padding: 20,
-    marginTop:20,
-    display:'flex',
-    flex:1,
-    gap:'1em'
+    padding: 18,
+    paddingTop: 12,
+    gap: 16,
   },
-  mechanicItem: {
+  mechanicCard: {
     backgroundColor: Colors.appColors.white,
-    borderWidth:2,
+    borderRadius: 14,
+    borderWidth:1,
     borderColor:Colors.appColors.primary,
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
+    padding: 18,
+    marginBottom: 10,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 3,
-    elevation: 3,
+  },
+  mechanicCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   mechanicName: {
-    display:'flex',
-    alignItems:'center',
-    gap:'.5em',
     fontSize: 18,
     fontWeight: 'bold',
     color: Colors.appColors.primary,
-    marginBottom: 10,
+  },
+  mechanicExpertiseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+    gap: 4,
+  },
+  mechanicExpertise: {
+    fontSize: 14,
+    color: Colors.appColors.accent,
+    marginLeft: 4,
+  },
+  mechanicInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 2,
   },
   mechanicLocation: {
-    display:'flex',
-    alignItems:'center',
-    gap:'.5em',
     fontSize: 14,
     color: Colors.appColors.darkGray,
-    marginBottom: 10,
+    marginLeft: 8,
   },
   mechanicPhone: {
-    display:'flex',
-    alignItems:'center',
-    gap:'.5em',
     fontSize: 14,
     color: Colors.appColors.darkGray,
-    marginBottom: 10,
+    marginLeft: 8,
   },
   callButton: {
-    position:'absolute',
-    top:0,
-    right:15,
     backgroundColor: Colors.appColors.primary,
-    width: 80,
-    paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 8,
+    padding: 10,
+    marginLeft: 10,
+    elevation: 2,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
-    marginVertical:10
-},
-callButtonText: {
-    color: Colors.appColors.white,
-    fontSize: 18,
-    fontWeight: 'semibold',
-},
-})
+    justifyContent: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: Colors.appColors.gray,
+    fontSize: 16,
+    marginTop: 40,
+  },
+});

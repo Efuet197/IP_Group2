@@ -1,8 +1,6 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { Image } from 'expo-image';
-import { GestureResponderEvent, StyleSheet, TouchableOpacity } from 'react-native';
+import { GestureResponderEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface headerProps {
@@ -11,13 +9,13 @@ interface headerProps {
 }
 
 const Header = ({ title, onBackPress }:headerProps) => (
-  <ThemedView style={styles.header}>
+  <View style={styles.header}>
     {onBackPress && (
       <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
         <Icon name="chevron-left" size={24} color={Colors.light.tabIconDefault} />
       </TouchableOpacity>
     )}
-    <ThemedText style={styles.headerTitle}>
+    <Text style={styles.headerTitle}>
       {!onBackPress ?
       <Image
           source={require('@/assets/images/logo.png')}
@@ -26,8 +24,8 @@ const Header = ({ title, onBackPress }:headerProps) => (
       :
       title
       }
-    </ThemedText>
-  </ThemedView>
+    </Text>
+  </View>
 );
 
 const styles = StyleSheet.create({

@@ -1,199 +1,405 @@
-import Header from '@/components/Header';
+import Header2 from '@/components/Header2';
 import { Colors } from '@/constants/Colors';
+import { useAppContext, UserRole } from '@/context/AppContext';
+import { API_BASE_URL } from '@/utils/authApi';
 import { MaterialIcons } from '@expo/vector-icons';
+import axios from 'axios';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const APP_VERSION = '1.0.0';
+const APP_ENV = 'development';
+
 const profile = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [fullName, setFullName] = useState('Adam Marmont');
-  const [phoneNumber, setPhoneNumber] = useState('+237671818471');
-  const [location, setLocation] = useState('Chief Street Bomaka, Buea');
-  const [role, setRole] = useState('Mechanic');
-
-  const handleSave = () => {
-    console.log('Saving profile:', { fullName, phoneNumber, location, role });
+  const { user,setUser ,logout } = useAppContext();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [fullName, setFullName] = useState<string>(user.fullName);
+  const [phoneNumber, setPhoneNumber] = useState<string>(user.phoneNumber?.toString() || "");
+  const [email, setEmail] = useState<string>(user.email || '');
+  const [location, setLocation] = useState<string>(user.mechanicProfile?.workshopLocation || "");
+  const [role, setRole] = useState<UserRole>(user.role);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const handleSave =async () => {
+    // TODO: Save profile changes to backend
     setIsEditing(false);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/users/${user.id}`,{
+          fullName,
+          phoneNumber,
+          email,
+          garageLocation:location,
+          role
+      });
+      if(response.data) return response.data;
+      setIsEditing(false);
+    } catch (error:any) {
+      console.log(error)
+      setError(error.message)
+      setIsEditing(false);
+    }
   };
-
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
   const handleCancel = () => {
-    // Revert changes if cancelled (in a real app, you'd load original data)
+    setFullName(user.fullName);
+    setPhoneNumber(user.phoneNumber?.toString() || "");
+    setEmail(user.email || '');
+    setLocation(user.mechanicProfile?.workshopLocation || "");
+    setRole(user.role);
     setIsEditing(false);
   };
 
   return (
-    <SafeAreaView style={styles.mechanicProfileContainer}>
-      {/* <StatusBar style="light" /> */}
-      <Header title="CarCare" />
-      <View style={styles.mechanicProfileHeader}>
-        {/* <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={30} color={Colors.appColors.white} />
-        </TouchableOpacity> */}
-        {/* <Text style={styles.mechanicProfileTitle}>CarCare</Text> */}
-        <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-          <MaterialIcons name={isEditing ? 'close' : 'edit'} size={30} color={Colors.appColors.primary} />
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <Header2 title="CarCare" />
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Profile Card */}
+        <LinearGradient
+          colors={[Colors.appColors.primary, Colors.appColors.accent]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.profileCard}
+        >
+          <View style={styles.profileImageWrapper}>
+            <View style={styles.profileImagePlaceholder}>
+              <MaterialIcons name="person" size={80} color={Colors.appColors.gray} />
+            </View>
+          </View>
+          <Text style={styles.profileName}>{fullName}</Text>
+          <Text style={styles.profileRole}>{role === 'mechanic' ? 'Mechanic' : 'Car Owner'}</Text>
+          <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(!isEditing)}>
+            <MaterialIcons name={isEditing ? 'close' : 'edit'} size={24} color={Colors.appColors.primary} />
+            <Text style={styles.editButtonText}>{isEditing ? 'Cancel' : 'Edit Profile'}</Text>
+          </TouchableOpacity>
+        </LinearGradient>
 
-      <ScrollView contentContainerStyle={styles.mechanicProfileContent}>
-        <View style={styles.profileImagePlaceholder}>
-          <MaterialIcons name="person" size={80} color={Colors.appColors.gray} />
+        {/* Profile Details */}
+        <View style={[styles.detailsSection, isEditing && styles.editingSection]}>
+          <Text style={styles.sectionHeader}>Profile Details</Text>
+          {isEditing ? (
+            <>
+              <View style={styles.inputRow}>
+                <MaterialIcons name="person" size={20} color={Colors.appColors.primary} />
+                <TextInput
+                  style={styles.profileInput}
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChangeText={setFullName}
+                />
+              </View>
+              {user.phoneNumber && (
+                <View style={styles.inputRow}>
+                  <MaterialIcons name="phone" size={20} color={Colors.appColors.primary} />
+                  <TextInput
+                    style={styles.profileInput}
+                    placeholder="Phone Number"
+                    keyboardType="phone-pad"
+                    value={phoneNumber}
+                    onChangeText={setPhoneNumber}
+                  />
+                </View>
+              )}
+              {user.email && (
+                <View style={styles.inputRow}>
+                  <MaterialIcons name="email" size={20} color={Colors.appColors.primary} />
+                  <TextInput
+                    style={styles.profileInput}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              )}
+              <View style={styles.inputRow}>
+                <MaterialIcons name="location-on" size={20} color={Colors.appColors.primary} />
+                <TextInput
+                  style={styles.profileInput}
+                  placeholder="Location"
+                  value={location}
+                  onChangeText={setLocation}
+                />
+              </View>
+              <View style={styles.inputRow}>
+                <MaterialIcons name="badge" size={20} color={Colors.appColors.primary} />
+                <TextInput
+                  style={styles.profileInput}
+                  placeholder="Role"
+                  value={role}
+                  onChangeText={(newText) => setRole(newText as UserRole)}
+                />
+              </View>
+              <View style={styles.profileButtons}>
+                <TouchableOpacity style={styles.profileSaveButton} onPress={handleSave}>
+                  <Text style={[styles.profileButtonText, { color: 'white' }]}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.profileCancelButton} onPress={handleCancel}>
+                  <Text style={styles.profileButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={styles.detailRow}>
+                <MaterialIcons name="person" size={20} color={Colors.appColors.primary} />
+                <Text style={styles.detailText}>{fullName}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <MaterialIcons name="badge" size={20} color={Colors.appColors.primary} />
+                <Text style={styles.detailText}>{role === 'mechanic' ? 'Mechanic' : 'Car Owner'}</Text>
+              </View>
+              {user.phoneNumber ? (
+                <View style={styles.detailRow}>
+                  <MaterialIcons name="phone" size={20} color={Colors.appColors.primary} />
+                  <Text style={styles.detailText}>{phoneNumber}</Text>
+                </View>
+              ) : null}
+              {user.email ? (
+                <View style={styles.detailRow}>
+                  <MaterialIcons name="email" size={20} color={Colors.appColors.primary} />
+                  <Text style={styles.detailText}>{email}</Text>
+                </View>
+              ) : null}
+              <View style={styles.detailRow}>
+                <MaterialIcons name="location-on" size={20} color={Colors.appColors.primary} />
+                <Text style={styles.detailText}>{location}</Text>
+              </View>
+            </>
+          )}
         </View>
 
-        {isEditing ? (
-          <>
-            <TextInput
-              style={styles.profileInput}
-              placeholder="Full Name"
-              value={fullName}
-              onChangeText={setFullName}
-            />
-            <TextInput
-              style={styles.profileInput}
-              placeholder="Phone Number"
-              keyboardType="phone-pad"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-            />
-            <TextInput
-              style={styles.profileInput}
-              placeholder="Location"
-              value={location}
-              onChangeText={setLocation}
-            />
-            <TextInput
-              style={styles.profileInput}
-              placeholder="Role"
-              value={role}
-              onChangeText={setRole}
-            />
-            <View style={styles.profileButtons}>
-              <TouchableOpacity style={styles.profileSaveButton} onPress={handleSave}>
-                <Text style={[styles.profileButtonText,{color:'white'}]}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.profileCancelButton} onPress={handleCancel}>
-                <Text style={styles.profileButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <>
-            <Text style={styles.profileName}>{fullName}</Text>
-            <Text style={styles.profileRole}>{role}</Text>
-            <View style={styles.profileDetailRow}>
-              <MaterialIcons name="phone" size={20} color={Colors.appColors.primary} />
-              <Text style={styles.profileDetailText}>{phoneNumber}</Text>
-            </View>
-            <View style={styles.profileDetailRow}>
-              <MaterialIcons name="location-on" size={20} color={Colors.appColors.primary} />
-              <Text style={styles.profileDetailText}>{location}</Text>
-            </View>
-          </>
-        )}
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+
+        {/* App Info Card */}
+        <View style={styles.appInfoCard}>
+          <Text style={styles.sectionHeader}>App Info</Text>
+          <View style={styles.appInfoRow}>
+            <MaterialIcons name="info" size={20} color={Colors.appColors.primary} />
+            <Text style={styles.appInfoText}>Version: {APP_VERSION}</Text>
+          </View>
+          <View style={styles.appInfoRow}>
+            <MaterialIcons name="build" size={20} color={Colors.appColors.primary} />
+            <Text style={styles.appInfoText}>Environment: {APP_ENV}</Text>
+          </View>
+          <View style={styles.appInfoRow}>
+            <MaterialIcons name="directions-car" size={20} color={Colors.appColors.primary} />
+            <Text style={styles.appInfoText}>CarCare</Text>
+          </View>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
-export default profile
+export default profile;
 
 const styles = StyleSheet.create({
-  mechanicProfileContainer: {
+  container: {
     flex: 1,
     backgroundColor: Colors.appColors.secondary,
   },
-  mechanicProfileHeader: {
-    // position:'absolute',
-    // top:100,
-    // right:80,
-    // backgroundColor: Colors.appColors.primary,
-    flexDirection: 'row',
+  scrollContent: {
+    paddingBottom: 40,
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
   },
-  mechanicProfileTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.appColors.white,
-  },
-  mechanicProfileContent: {
+  profileCard: {
+    width: '92%',
+    alignSelf: 'center',
     alignItems: 'center',
-    padding: 20,
-    paddingTop:0,
+    borderRadius: 18,
+    paddingVertical: 32,
+    marginTop: 18,
+    marginBottom: 18,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+  },
+  profileImageWrapper: {
+    marginBottom: 12,
+    borderRadius: 64,
+    borderWidth: 3,
+    borderColor: Colors.appColors.white,
+    padding: 4,
+    backgroundColor: Colors.appColors.white,
   },
   profileImagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: Colors.appColors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: Colors.appColors.primary,
   },
   profileName: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: Colors.appColors.primary,
-    marginBottom: 5,
+    color: Colors.appColors.white,
+    marginBottom: 2,
+    marginTop: 2,
+    textShadowColor: 'rgba(0,0,0,0.12)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   profileRole: {
-    fontSize: 18,
-    color: Colors.appColors.darkGray,
-    marginBottom: 20,
+    fontSize: 16,
+    color: Colors.appColors.white,
+    marginBottom: 10,
+    opacity: 0.85,
   },
-  profileDetailRow: {
+  editButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    backgroundColor: Colors.appColors.white,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    elevation: 2,
   },
-  profileDetailText: {
+  editButtonText: {
+    color: Colors.appColors.primary,
+    fontWeight: 'bold',
+    marginLeft: 6,
+    fontSize: 15,
+  },
+  detailsSection: {
+    width: '92%',
+    alignSelf: 'center',
+    backgroundColor: Colors.appColors.white,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 18,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  editingSection: {
+    borderWidth: 2,
+    borderColor: Colors.appColors.primary,
+    backgroundColor: '#f7fafc',
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.appColors.primary,
+    marginBottom: 12,
+    letterSpacing: 0.5,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  profileInput: {
+    backgroundColor: Colors.appColors.lightGray,
+    flex: 1,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     fontSize: 16,
     color: Colors.appColors.darkGray,
     marginLeft: 10,
   },
-  profileInput: {
-    backgroundColor: Colors.appColors.white,
-    width: '90%',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    fontSize: 16,
-    color: Colors.appColors.darkGray,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
   profileButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '90%',
-    marginTop: 20,
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 18,
   },
   profileSaveButton: {
     backgroundColor: Colors.appColors.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    width: '45%',
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 8,
     alignItems: 'center',
+    width: '48%',
   },
   profileCancelButton: {
     backgroundColor: Colors.appColors.gray,
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '48%',
+  },
+  profileButtonText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  detailText: {
+    fontSize: 16,
+    color: Colors.appColors.darkGray,
+    marginLeft: 10,
+  },
+  divider: {
+    width: '80%',
+    height: 1,
+    backgroundColor: Colors.appColors.gray,
+    alignSelf: 'center',
+    marginVertical: 18,
+    opacity: 0.3,
+  },
+  appInfoCard: {
+    width: '92%',
+    alignSelf: 'center',
+    backgroundColor: Colors.appColors.white,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 18,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 1,
+  },
+  appInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  appInfoText: {
+    fontSize: 15,
+    color: Colors.appColors.darkGray,
+    marginLeft: 10,
+  },
+  logoutButton: {
+    backgroundColor: Colors.appColors.primary,
     paddingVertical: 15,
+    marginVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 10,
-    width: '45%',
+    width: '80%',
+    alignSelf: 'center',
     alignItems: 'center',
+    elevation: 2,
   },
-  profileButtonText:{
-    color:'black'
-  }
-})
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
