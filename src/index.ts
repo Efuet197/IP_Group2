@@ -39,7 +39,7 @@ app.get('/', (req: Request, res: Response) => {
 //     })
 //   });
 
-mongoose.connect("mongodb://localhost:27017/carcare").then(()=>{
+mongoose.connect(process.env.DATABASE_URL).then(()=>{
       console.log("Connected to MongoDB without prisma")
   }).catch((err)=>{
       console.error('Failed to connect to MongoDB:', err.message);
