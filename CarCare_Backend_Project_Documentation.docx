@@ -1,0 +1,171 @@
+# CarCare Backend Project Documentation
+
+## Introduction
+CarCare is a comprehensive backend system designed to power a smart car fault diagnosis platform. It enables users to upload dashboard images or engine sounds for AI-powered analysis, manage user and mechanic profiles, vehicles, diagnostics, reviews, and access relevant tutorial videos. The backend is built for scalability, security, and extensibility, supporting both Prisma and Mongoose for MongoDB access. The system is intended for car owners, mechanics, and automotive service providers who wish to leverage artificial intelligence for rapid and accurate vehicle diagnostics.
+
+## Tools and Materials Used
+
+### Backend Technologies
+- **Node.js & Express:** The core of the backend, providing a robust and scalable REST API framework.
+- **TypeScript:** Used throughout the project for type safety, maintainability, and improved developer experience.
+- **Prisma ORM:** Enables type-safe database access and schema management for MongoDB.
+- **Mongoose ODM:** Provides an alternative, flexible way to interact with MongoDB using schemas and models.
+- **MongoDB:** The primary NoSQL database for storing all persistent data, including users, vehicles, diagnostics, media, and reviews.
+
+### Supporting Libraries
+- **Multer:** Handles file uploads, including dashboard images and engine sound recordings.
+- **ffmpeg/fluent-ffmpeg:** Processes engine sound files to generate spectrogram images for AI analysis.
+- **JWT & bcrypt:** Ensures secure authentication and password storage.
+- **Axios:** Used for making HTTP requests to external AI and YouTube APIs.
+- **Swagger (OpenAPI):** Provides interactive API documentation and testing.
+- **YouTube Data API:** Fetches relevant tutorial videos based on diagnostic results.
+
+### Development Tools
+- **Visual Studio Code:** Recommended IDE for development.
+- **Postman/Swagger UI:** For API testing and exploration.
+- **Git:** For version control and collaboration.
+
+## Description of Implementation Process
+
+### 1. Project Setup
+- Initialized a Node.js project with TypeScript and Express.
+- Configured environment variables for database connection, JWT secret, and API keys.
+- Set up Prisma and Mongoose for MongoDB access, allowing the backend to support both ORM and ODM approaches.
+
+### 2. Database Modeling
+- Defined all entities (users, mechanics, vehicles, diagnostics, media, reviews, tutorials) in `prisma/schema.prisma` and as Mongoose schemas.
+- Established relationships between models, such as users owning vehicles, diagnostics linked to media and reviews, and mechanics having profiles and reviews.
+
+### 3. Authentication and Authorization
+- Implemented JWT-based signup and login endpoints.
+- Passwords are securely hashed using bcrypt before storage.
+- Role-based access control is enforced, distinguishing between car owners and mechanics.
+
+### 4. Media Uploads and Processing
+- Used Multer middleware to handle file uploads for dashboard images and engine sounds.
+- Engine sound files are processed with ffmpeg to generate spectrogram images, which are then used for AI analysis.
+
+### 5. AI-Powered Diagnosis
+- Integrated with external AI/ML APIs (such as Gemini or custom models) for dashboard image and engine sound analysis.
+- The backend sends uploaded media to the AI service, receives a diagnosis (fault code, summary, recommendations), and stores the result in the database.
+- Each diagnosis is linked to the user, vehicle, and relevant media.
+
+### 6. YouTube Tutorial Integration
+- After a successful diagnosis, the backend uses the YouTube Data API to search for relevant tutorial videos based on the diagnosis.
+- The most relevant video URL is included in the diagnostic response and stored for future reference.
+
+### 7. API Documentation
+- All endpoints are documented using Swagger (OpenAPI), making it easy for developers to explore and test the API.
+- The documentation is accessible at `/api-docs` and includes request/response schemas, authentication requirements, and example payloads.
+
+### 8. Error Handling and Validation
+- Consistent error responses are implemented throughout the API.
+- Input validation is performed on all endpoints to ensure data integrity and security.
+
+### 9. Testing and Quality Assurance
+- Manual and automated tests are performed using Postman and Swagger UI.
+- The codebase is structured for maintainability and extensibility, with clear separation of concerns.
+
+## Presentation and Interpretation of Results
+
+### User Experience
+- **Registration and Login:** Users can register as car owners or mechanics, log in securely, and manage their profiles.
+- **Media Upload:** Users can upload dashboard images or engine sound recordings for analysis.
+- **Diagnosis:** The system provides instant AI-powered diagnoses, including fault codes, summaries, and actionable recommendations.
+- **Tutorial Videos:** Relevant YouTube tutorials are suggested based on the diagnosis, helping users understand and address issues.
+- **Mechanic Profiles and Reviews:** Mechanics can manage their profiles and receive reviews from users, fostering trust and transparency.
+- **Diagnostics History:** Users can view their diagnostic history, including media, results, and tutorial links.
+
+### API and Developer Experience
+- **Swagger UI:** The API is fully documented and testable via Swagger, making integration and testing straightforward.
+- **Modular Design:** The backend is organized into controllers, routes, and models, facilitating easy maintenance and feature addition.
+
+## Evaluation of Solution (Project)
+
+### Strengths
+- **Modular and Extensible:** The codebase is designed for easy extension and maintenance.
+- **Dual Database Access:** Supports both Prisma and Mongoose, offering flexibility in database operations.
+- **Secure Authentication:** JWT and bcrypt ensure robust security for user data.
+- **Real-Time AI Diagnosis:** Integrates with AI/ML services for instant, accurate diagnostics.
+- **Comprehensive Documentation:** Swagger UI provides clear, interactive API documentation.
+- **User-Centric Features:** Focuses on usability, actionable results, and educational resources.
+
+### Limitations
+- **External API Dependence:** Relies on third-party AI and YouTube APIs, which may have rate limits or require paid plans.
+- **AI Model Quality:** The accuracy of diagnoses depends on the quality of the AI models and the clarity of uploaded media.
+- **Scalability:** While designed for scalability, actual performance at large scale would require further testing and optimization.
+
+## How to Deploy, Run, and Execute the Project
+
+### Prerequisites
+- Node.js (v16+ recommended)
+- MongoDB instance (local or cloud, e.g., MongoDB Atlas)
+- ffmpeg installed on the server (for audio processing)
+- YouTube Data API key and (optionally) AI/ML API credentials
+
+### Environment Setup
+1. **Clone the Repository:**
+   ```sh
+   git clone <repository-url>
+   cd CarCare
+   ```
+2. **Install Dependencies:**
+   ```sh
+   npm install
+   ```
+3. **Configure Environment Variables:**
+   - Create a `.env` file in the project root with the following:
+     ```
+     DATABASE_URL=mongodb+srv://<user>:<password>@<cluster-url>/<dbname>?retryWrites=true&w=majority
+     JWT_SECRET=your_jwt_secret
+     YOUTUBE_API_KEY=your_youtube_api_key
+     AI_API_URL=your_ai_api_url
+     AI_API_KEY=your_ai_api_key
+     PORT=8000
+     ```
+4. **Generate Prisma Client:**
+   ```sh
+   npx prisma generate
+   ```
+5. **(Optional) Run Database Migrations:**
+   ```sh
+   npx prisma migrate deploy
+   ```
+
+### Running the Project
+- **Development Mode:**
+  ```sh
+  npm run dev
+  ```
+  The server will start on the port specified in `.env` (default: 8000).
+- **Production Mode:**
+  ```sh
+  npm run build
+  npm start
+  ```
+
+### Accessing the API
+- **Swagger Documentation:**  
+  Visit [http://localhost:8000/api-docs](http://localhost:8000/api-docs) to explore and test the API.
+- **Example Endpoints:**
+  - `POST /auth/signup` — Register a new user or mechanic
+  - `POST /auth/login` — Login and receive a JWT token
+  - `POST /diagnose` — Upload dashboard image or engine sound for diagnosis
+  - `GET /users` — List all users
+  - `GET /mechanics` — List all mechanics
+
+### Deployment
+- **Cloud Deployment:**  
+  The backend can be deployed to any Node.js-compatible cloud platform (e.g., Heroku, AWS Elastic Beanstalk, Azure App Service, DigitalOcean App Platform).
+- **Dockerization:**  
+  For containerized deployment, create a `Dockerfile` and use Docker Compose for multi-service setups (e.g., with MongoDB).
+- **Environment Variables:**  
+  Ensure all secrets and API keys are securely managed in the deployment environment.
+
+## Conclusion (Partial)
+The CarCare backend provides a robust, extensible, and user-friendly foundation for smart car fault diagnosis. By leveraging modern web technologies, AI integration, and comprehensive documentation, it empowers both end-users and developers. While the current implementation meets core requirements, future improvements could include advanced analytics, real-time notifications, deeper integration with automotive data sources, and enhanced scalability for enterprise use.
+
+## Appendices (Optional)
+- Example API requests and responses
+- Database ER diagram
+- Troubleshooting and FAQ
