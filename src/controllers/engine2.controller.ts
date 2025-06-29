@@ -69,6 +69,8 @@ export default function analyzeEngineSound2(
             The JSON object should have the following structure:
             {
                 "summary": "A brief, one-sentence summary of the engine's status.",
+                "fault":"A short phrase stating the fault.(e.g Low Engine Oil Pressure)"
+                "severity":"The severity of the issue. Either High, Medium, or Low",
                 "problem":"List at least one most likely problem. For each problem, explain why the sound pattern points to that issue",
                 "suggestion":"For each diagnosis, recommend what the user should check or what a professional mechanic should inspect",
                 "status": ** Assign a severity level (e.g., "Low: Monitor", "Medium: Schedule Inspection Soon", "High: Stop Driving Immediately"),
@@ -89,6 +91,8 @@ export default function analyzeEngineSound2(
         The JSON output must conform to the following schema:
         {
         "overallHealth": "string (Enum: 'Healthy', 'Caution', 'Serious Issue')",
+        "fault":"A short phrase stating the fault.(e.g Low Engine Oil Pressure)"
+        "severity":"The severity of the issue. Either High, Medium, or Low",
         "confidenceScore": "float (0.0 to 1.0)",
         "summary": "string (A one-sentence, human-readable summary)",
         "detectedAnomalies": [
@@ -150,6 +154,7 @@ export default function analyzeEngineSound2(
         const createdDiagnosis=await Diagnostic.create({
             userId:'685e6718742d2eed871a2bda',//req.body.userId,
             tutorialVideo:youtubeUrl,
+            fault:diagnosis.fault,
             summary:diagnosis.summary,
             recommendation:diagnosis.recommendation,
             indicators:diagnosis.indicators

@@ -57,8 +57,10 @@ const diagnosticSchema = new mongoose.Schema({
   userId: {type:Schema.Types.ObjectId,ref:'User',required:true},
   tutorialVideo:String, //{type:Schema.Types.ObjectId,ref:'TutorialVideo'},
   summary: String,
+  fault: String,
   faultCode:String,
   recommendation:String,
+  severity:String,
 },{timestamps:true});
 
 const User = mongoose.model('User', userSchema);
@@ -469,7 +471,8 @@ router.post('/tutorial-videos', async (req, res) => {
 // Diagnostic Endpoints
 router.get('/diagnostics/:userId', async (req, res) => {
   try {
-    const diagnostics = await Diagnostic.find({userId:req.params});
+    console.log(req.params)
+    const diagnostics = await Diagnostic.find({userId:req.params.userId});
     res.json(diagnostics);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch diagnostics', error: err });
@@ -709,6 +712,7 @@ router.post(
       return;
     }
 
+    console.log(req.body)
     // Store the incoming multer file in a folder
     const folderPath = UPLOAD_DIR; // Use the uploads directory
     const fileName = `${req.file.originalname}`;
@@ -802,7 +806,7 @@ router.post('/auth/signup', async (req, res):Promise<any> => {
         { id: user?._id },
         `${process.env.JWT_SECRET}`,{expiresIn:'24h'}
     );
-    res.status(201).json({ message: 'User created',token, user: { ...user?.toObject(), password: undefined } });
+    res.status(201).json({ message: 'User created',token, user: { ...user?.toObject(),id:user?._id, password: undefined } });
   } catch (err) {
     res.status(500).json({ message: 'Signup failed', error: err });
   }
@@ -864,7 +868,7 @@ router.post('/auth/login', async (req, res):Promise<any> => {
       { expiresIn: '1d' }
     );
     console.log(token, { ...user.toObject(), password: undefined })
-    res.json({ token, user: { ...user.toObject(), password: undefined } });
+    res.json({ token, user: { ...user.toObject(),id:user._id, password: undefined } });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err });
   }
